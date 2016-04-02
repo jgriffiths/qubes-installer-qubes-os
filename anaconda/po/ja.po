@@ -2274,8 +2274,8 @@ msgid ""
 "Please select language support to install.\n"
 "['%(back)s' to return to language list, '%(continue)s' to continue, '%(quit)s' to quit]: "
 msgstr ""
-"次から選択してください。 ['%(quit)s'で終了 | '%(continue)s' で続行 |\n"
-"  '%(refresh)s' で更新]: "
+"次から選択してください。 ['%(back)s'で終了 | '%(continue)s' で続行 |\n"
+"  '%(quit)s' で更新]: "
 
 #. TRANSLATORS:'c' to continue
 # translation auto-copied from project anaconda, version f23-branch, document
