@@ -1,6 +1,5 @@
 RPM_SPEC_FILES.dom0 := \
     lorax-templates-qubes/lorax-templates-qubes.spec \
-    pungi/pungi.spec \
     anaconda/anaconda.spec \
     firstboot/firstboot.spec \
     qubes-release/qubes-release.spec \
