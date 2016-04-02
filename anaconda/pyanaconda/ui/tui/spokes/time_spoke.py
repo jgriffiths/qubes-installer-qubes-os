@@ -1,0 +1,154 @@
+# Timezone text spoke
+#
+# Copyright (C) 2012  Red Hat, Inc.
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# the GNU General Public License v.2, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY expressed or implied, including the implied warranties of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.  You should have received a copy of the
+# GNU General Public License along with this program; if not, write to the
+# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.  Any Red Hat trademarks that are incorporated in the
+# source code or documentation are not subject to the GNU General Public
+# License and may only be used or replicated with the express permission of
+# Red Hat, Inc.
+#
+# Red Hat Author(s): Martin Sivak <msivak@redhat.com>
+#
+
+from pyanaconda.ui.categories.localization import LocalizationCategory
+from pyanaconda.ui.tui.spokes import NormalTUISpoke
+from pyanaconda.ui.tui.simpleline import TextWidget, ColumnWidget
+from pyanaconda.ui.common import FirstbootSpokeMixIn
+from pyanaconda import timezone
+from pyanaconda.i18n import N_, _, C_
+from pyanaconda.constants_text import INPUT_PROCESSED
+
+class TimeZoneSpoke(FirstbootSpokeMixIn, NormalTUISpoke):
+    """
+       .. inheritance-diagram:: TimeZoneSpoke
+          :parts: 3
+    """
+    title = N_("Timezone settings")
+    category = LocalizationCategory
+
+    def __init__(self, app, data, storage, payload, instclass):
+        NormalTUISpoke.__init__(self, app, data, storage, payload, instclass)
+
+    def initialize(self):
+        # it's stupid to call get_all_regions_and_timezones twice, but regions
+        # needs to be unsorted in order to display in the same order as the GUI
+        # so whatever
+        self._regions = list(timezone.get_all_regions_and_timezones().keys())
+        self._timezones = dict((k, sorted(v)) for k, v in timezone.get_all_regions_and_timezones().items())
+        self._lower_regions = [r.lower() for r in self._timezones]
+
+        self._zones = ["%s/%s" % (region, z) for region in self._timezones for z in self._timezones[region]]
+        self._lower_zones = [z.lower().replace("_", " ") for region in self._timezones for z in self._timezones[region]] # for lowercase lookup
+
+        self._selection = ""
+
+    @property
+    def completed(self):
+        return bool(self.data.timezone.timezone)
+
+    @property
+    def mandatory(self):
+        return True
+
+    @property
+    def status(self):
+        if self.data.timezone.timezone:
+            return _("%s timezone") % self.data.timezone.timezone
+        else:
+            return _("Timezone is not set.")
+
+
+    def refresh(self, args=None):
+        """args is None if we want a list of zones or "zone" to show all timezones in that zone."""
+        NormalTUISpoke.refresh(self, args)
+
+        if args and args in self._timezones:
+            self._window += [TextWidget(_("Available timezones in region %s") % args)]
+            displayed = [TextWidget(z) for z in self._timezones[args]]
+        else:
+            self._window += [TextWidget(_("Available regions"))]
+            displayed = [TextWidget(z) for z in self._regions]
+
+        def _prep(i, w):
+            number = TextWidget("%2d)" % (i + 1))
+            return ColumnWidget([(4, [number]), (None, [w])], 1)
+
+        # split zones to three columns
+        middle = len(displayed) / 3
+        left = [_prep(i, w) for i, w in enumerate(displayed) if i <= middle]
+        center = [_prep(i, w) for i, w in enumerate(displayed) if i > middle and i <= 2*middle]
+        right = [_prep(i, w) for i, w in enumerate(displayed) if i > 2*middle]
+
+        c = ColumnWidget([(24, left), (24, center), (24, right)], 3)
+        self._window.append(c)
+
+        return True
+
+    def input(self, args, key):
+        try:
+            keyid = int(key) - 1
+        except ValueError:
+            if key.lower().replace("_", " ") in self._lower_zones:
+                index = self._lower_zones.index(key.lower().replace("_", " "))
+                self._selection = self._zones[index]
+                self.apply()
+                self.close()
+                return INPUT_PROCESSED
+            elif key.lower() in self._lower_regions:
+                index = self._lower_regions.index(key.lower())
+                if len(self._timezones[self._regions[index]]) == 1:
+                    self._selection = "%s/%s" % (self._regions[index],
+                                                 self._timezones[self._regions[index]][0])
+                    self.apply()
+                    self.close()
+                else:
+                    self.app.switch_screen(self, self._regions[index])
+                return INPUT_PROCESSED
+            # TRANSLATORS: 'b' to go back
+            elif key.lower() == C_('TUI|Spoke Navigation|Time Settings', 'b'):
+                self.app.switch_screen(self, None)
+                return INPUT_PROCESSED
+            else:
+                return key
+
+        if keyid < 0:
+            return key
+        if args:
+            if keyid >= len(self._timezones[args]):
+                return key
+            self._selection = "%s/%s" % (args, self._timezones[args][keyid])
+            self.apply()
+            self.close()
+        else:
+            if keyid >= len(self._regions):
+                return key
+            region = self._regions[keyid]
+            selected_timezones = self._timezones[region]
+            if len(selected_timezones) == 1:
+                self._selection = "%s/%s" % (region, selected_timezones[0])
+                self.apply()
+                self.close()
+            else:
+                self.app.switch_screen(self, region)
+            return INPUT_PROCESSED
+
+    def prompt(self, args = None):
+        return _("Please select the timezone.\nUse numbers or type names directly ['%(back)s' to region list, '%(quit)s' to quit]: ") % {
+            # TRANSLATORS: 'b' to go back
+            'back': C_('TUI|Spoke Navigation|Time Settings', 'b'),
+            # TRANSLATORS:'q' to quit
+            'quit': C_('TUI|Spoke Navigation|Time Settings', 'q')
+        }
+
+    def apply(self):
+        self.data.timezone.timezone = self._selection
+        self.data.timezone.seen = False
