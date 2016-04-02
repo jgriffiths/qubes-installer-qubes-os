@@ -1340,7 +1340,7 @@ msgstr "Odabir korijena"
 
 #: pyanaconda/rescue.py:283
 msgid "The following installations were discovered on your system.\n"
-msgstr "Sljedeće instalacije su pronađene na vašem sustavu."
+msgstr "Sljedeće instalacije su pronađene na vašem sustavu.\n"
 
 #: pyanaconda/rescue.py:295
 msgid ""
@@ -1372,7 +1372,7 @@ msgstr ""
 #: pyanaconda/rescue.py:383
 #, python-format
 msgid "Run %s to unmount the system when you are finished.\n"
-msgstr "Pokrenite %s za demontiranje sustava kada završite."
+msgstr "Pokrenite %s za demontiranje sustava kada završite.\n"
 
 #: pyanaconda/rescue.py:385
 #, python-format
@@ -1381,7 +1381,7 @@ msgid ""
 "\n"
 msgstr ""
 "Došlo je do greške prilikom montiranja nekih ili svih vaših sustava. Neki od"
-" njih su možda montirani pod %s."
+" njih su možda montirani pod %s.\n"
 
 # translation auto-copied from project anaconda, version f22-branch, document
 # anaconda
@@ -1392,7 +1392,7 @@ msgstr "Nemate niti jednu Linux particiju. Ponovno pokretanje.\n"
 #: pyanaconda/rescue.py:399
 msgid "The system will reboot automatically when you exit from the shell.\n"
 msgstr ""
-"Sustav će se automatski ponovno pokrenuti kada izađete iz korisničke ljuske."
+"Sustav će se automatski ponovno pokrenuti kada izađete iz korisničke ljuske.\n"
 
 #: pyanaconda/rescue.py:403
 #, python-format
