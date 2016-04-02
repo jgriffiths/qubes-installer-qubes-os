@@ -1,7 +1,7 @@
 anaconda
 lorax
 pungi
-pykickstart
+python3-kickstart
 lorax-templates-qubes
 livecd-tools
 dracut-live

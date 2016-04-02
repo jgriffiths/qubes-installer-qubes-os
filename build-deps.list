@@ -8,7 +8,7 @@ libblkid-devel
 libnl-devel
 libxml2-python
 newt-devel
-pykickstart
+python3-kickstart
 python-urlgrabber
 rpm-devel
 rpm-python

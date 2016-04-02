@@ -1,5 +1,4 @@
 RPM_SPEC_FILES.dom0 := \
-    pykickstart/pykickstart.spec \
     lorax/lorax.spec \
     lorax-templates-qubes/lorax-templates-qubes.spec \
     pungi/pungi.spec \
